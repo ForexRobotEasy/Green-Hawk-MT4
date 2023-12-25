@@ -1,0 +1,76 @@
+
+//+------------------------------------------------------------------+
+//|                                              Green Hawk MT4      |
+//|                                     Developed by Forex Robot Easy Team|
+//|                                             Website: forexroboteasy.com|
+//+------------------------------------------------------------------+
+
+//--- Include necessary libraries
+#include <Trade\Trade.mqh>
+
+//--- Define global variables
+CTrade trade;
+
+//+------------------------------------------------------------------+
+//|                                 Expert initialization function |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+   //--- Initialize trade object
+   trade.SetExpertMagicNumber(123456);
+
+   //--- Set symbol parameters
+   trade.SetSymbolParameters(Symbol(), 0, 0, 0, 0);
+
+   //--- Set stop loss and take profit
+   trade.SetStopLoss(50);
+   trade.SetTakeProfit(100);
+
+   return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//|                                           Expert start function |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+   //--- Check if there are any open positions
+   if (trade.PositionsTotal() == 0)
+   {
+      //--- Loop through multiple symbols
+      for (int i = 0; i < SymbolsTotal(); i++)
+      {
+         //--- Set symbol parameters
+         trade.SetSymbolParameters(Symbol(i), 0, 0, 0, 0);
+         
+         //--- Check if price has returned in short period
+         if (IsPriceReturn())
+         {
+            //--- Open a new position
+            trade.Buy(0.1);
+         }
+      }
+   }
+   else
+   {
+      //--- Loop through open positions
+      for (int i = 0; i < trade.PositionsTotal(); i++)
+      {
+         //--- Close position if it has been open for more than hours
+         if (trade.PositionOpenTime(i) < TimeCurrent() - HoursToSeconds(1))
+         {
+            trade.ClosePosition(i);
+         }
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
+//|                                          Custom function to check price return |
+//+------------------------------------------------------------------+
+bool IsPriceReturn()
+{
+   //--- Implement custom logic to check price return
+   //--- Return true if price has returned in short period, otherwise false
+   return true;
+}
